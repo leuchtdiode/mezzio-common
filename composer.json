@@ -1,0 +1,56 @@
+{
+	"name": "leuchtdiode/mezzio-common",
+	"description": "Mezzio module for common classes",
+	"type": "library",
+	"license": "MIT",
+	"homepage": "https://try2catch.com",
+	"authors": [
+		{
+			"name": "Alex Schloegl",
+			"email": "alex@try2catch.com",
+			"homepage": "https://try2catch.com",
+			"role": "Developer"
+		}
+	],
+	"keywords": [
+		"Mezzio",
+		"Module"
+	],
+	"repositories": {
+		"leuchtdiode/mezzio-testing": {
+			"type": "path",
+			"url": "../mezzio-testing",
+			"options": {
+				"symlink": true
+			}
+		}
+	},
+	"require": {
+		"php": "~8.3.0 || ~8.4.0",
+		"ext-json": "*",
+		"laminas/laminas-servicemanager": "^3.23",
+		"doctrine/doctrine-orm-module": "^6.3",
+		"nesbot/carbon": "^3.10.0",
+		"psr/http-message": "^1.0.2",
+		"laminas/laminas-diactoros": "^3.6.0",
+		"psr/http-server-handler": "^1.0.0",
+		"mezzio/mezzio-laminasrouter": "^3.11.0",
+		"laminas/laminas-validator": "^2.64.0",
+		"laminas/laminas-translator": "^1.1.0",
+		"laminas/laminas-i18n": "^2.30.0",
+		"umpirsky/country-list": "^2.0.0"
+	},
+	"suggest": {
+		"ext-openssl": "*",
+		"ext-calendar": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Common\\": "src/",
+			"CommonTest\\": "test/src/"
+		}
+	},
+	"require-dev": {
+		"leuchtdiode/mezzio-testing": "dev-main"
+	}
+}
