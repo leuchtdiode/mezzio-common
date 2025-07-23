@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cab8235f5e72146864b37ce9954c2a6",
+    "content-hash": "c52da8ae34b55a5a8e230f43f6183a64",
     "packages": [
         {
             "name": "brick/varexporter",
@@ -6021,11 +6021,17 @@
         },
         {
             "name": "leuchtdiode/mezzio-testing",
-            "version": "dev-main",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/leuchtdiode/mezzio-testing.git",
+                "reference": "6ec8ad5470f741fae736b2a58c9077196cc08c86"
+            },
             "dist": {
-                "type": "path",
-                "url": "../mezzio-testing",
-                "reference": "ef74e8e710e7ee162b90009e62aca2eac8b24d8a"
+                "type": "zip",
+                "url": "https://api.github.com/repos/leuchtdiode/mezzio-testing/zipball/6ec8ad5470f741fae736b2a58c9077196cc08c86",
+                "reference": "6ec8ad5470f741fae736b2a58c9077196cc08c86",
+                "shasum": ""
             },
             "require": {
                 "doctrine/data-fixtures": "^2.0.0",
@@ -6040,6 +6046,7 @@
                     "Testing\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6054,14 +6061,15 @@
             "description": "Mezzio module for testing",
             "homepage": "https://try2catch.com",
             "keywords": [
-                "Mezzio",
-                "Module",
-                "Testing"
+                "mezzio",
+                "module",
+                "testing"
             ],
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/leuchtdiode/mezzio-testing/issues",
+                "source": "https://github.com/leuchtdiode/mezzio-testing/tree/1.0.0"
+            },
+            "time": "2025-07-23T14:50:24+00:00"
         },
         {
             "name": "mezzio/mezzio",
@@ -7849,9 +7857,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "leuchtdiode/mezzio-testing": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
