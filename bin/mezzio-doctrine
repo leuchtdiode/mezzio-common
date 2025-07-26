@@ -1,0 +1,60 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+use Doctrine\Migrations\Tools\Console\Command as MigrationsCommand;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Psr\Container\ContainerInterface;
+
+$cwd = getcwd();
+if (is_dir($cwd . '/vendor'))
+{
+	chdir($cwd);
+	require 'vendor/autoload.php';
+}
+else if (file_exists($a = __DIR__ . '/../../../autoload.php'))
+{
+	require $a;
+}
+else if (file_exists($a = __DIR__ . '/../vendor/autoload.php'))
+{
+	require $a;
+}
+else if (file_exists($a = __DIR__ . '/../autoload.php'))
+{
+	require $a;
+}
+else
+{
+	fwrite(STDERR, 'Cannot locate autoloader; please run "composer install"' . PHP_EOL);
+	exit(1);
+}
+
+/** @var ContainerInterface $container */
+$container = require 'config/container.php';
+
+/** @var EntityManagerInterface $entityManager */
+$entityManager = $container->get('doctrine.entity_manager.orm_default');
+
+$commands = [
+	$container->get(MigrationsCommand\CurrentCommand::class),
+	$container->get(MigrationsCommand\DiffCommand::class),
+	$container->get(MigrationsCommand\DumpSchemaCommand::class),
+	$container->get(MigrationsCommand\ExecuteCommand::class),
+	$container->get(MigrationsCommand\GenerateCommand::class),
+	$container->get(MigrationsCommand\LatestCommand::class),
+	$container->get(MigrationsCommand\ListCommand::class),
+	$container->get(MigrationsCommand\MigrateCommand::class),
+	$container->get(MigrationsCommand\RollupCommand::class),
+	$container->get(MigrationsCommand\StatusCommand::class),
+	$container->get(MigrationsCommand\SyncMetadataCommand::class),
+	$container->get(MigrationsCommand\UpToDateCommand::class),
+	$container->get(MigrationsCommand\VersionCommand::class),
+];
+
+ConsoleRunner::run(
+	new SingleManagerProvider($entityManager),
+	$commands
+);

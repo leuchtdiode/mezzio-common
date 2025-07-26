@@ -16,6 +16,9 @@
 		"Mezzio",
 		"Module"
 	],
+	"bin": [
+		"bin/mezzio-doctrine"
+	],
 	"require": {
 		"php": "~8.3.0 || ~8.4.0",
 		"ext-json": "*",
@@ -29,7 +32,8 @@
 		"laminas/laminas-validator": "^2.64.0",
 		"laminas/laminas-translator": "^1.1.0",
 		"laminas/laminas-i18n": "^2.30.0",
-		"umpirsky/country-list": "^2.0.0"
+		"umpirsky/country-list": "^2.0.0",
+		"roave/psr-container-doctrine": "^3.0.0"
 	},
 	"suggest": {
 		"ext-openssl": "*",
