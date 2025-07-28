@@ -57,7 +57,7 @@ class EntityRepository extends DoctrineEntityRepository
 	 * @throws NonUniqueResultException
 	 * @throws NoResultException
 	 */
-	public function countWithFilter(FilterChain $filterChain = null, ?bool $distinct = false): int
+	public function countWithFilter(?FilterChain $filterChain = null, ?bool $distinct = false): int
 	{
 		$identifiers = $this
 			->getClassMetadata()
