@@ -71,6 +71,9 @@ return [
 				ApplicationConfigInjectionDelegator::class,
 			],
 		],
+		'aliases'            => [
+			'Config' => 'config',
+		],
 		'factories'          => [
 			// doctrine cli
 			'doctrine.entity_manager.orm_default'        => EntityManagerFactory::class,
