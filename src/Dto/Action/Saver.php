@@ -31,12 +31,23 @@ class Saver
 
 		$request = $params->getRequest();
 
-		$body = json_decode(
-			$request
-				->getBody()
-				->getContents(),
-			true
-		);
+		$body = $request->getParsedBody();
+
+		// if not set, try to rewind stream and get from there
+		if (!$body)
+		{
+			$bodyStream = $request->getBody();
+
+			if ($bodyStream->isSeekable())
+			{
+				$bodyStream->rewind();
+			}
+
+			$body = json_decode(
+				$bodyStream->getContents(),
+				true
+			);
+		}
 
 		if (!($dtoNamespace = $this->keyConfig->getNamespace($params->getDtoKey())))
 		{
