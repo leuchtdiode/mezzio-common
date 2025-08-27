@@ -30,14 +30,17 @@ class JsonResponse
 	public function dispatch(): DiactorosJsonResponse
 	{
 		return new DiactorosJsonResponse(
-			[
+			data: [
 				'success' => $this->success,
 				'data'    => $this->data,
 				'meta'    => $this->meta
 					? ObjectToArrayHydrator::hydrate($this->meta)
 					: null,
 				'errors'  => ObjectToArrayHydrator::hydrate($this->errors),
-			]
+			],
+			status: $this->success
+				? 200
+				: 400
 		);
 	}
 

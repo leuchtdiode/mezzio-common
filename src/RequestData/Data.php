@@ -46,6 +46,11 @@ abstract class Data
 				}
 			}
 
+			if (!$this->data && !empty($_POST))
+			{
+				$this->data = $_POST;
+			}
+
 			if ($this->data === null)
 			{
 				$this->data = [];
