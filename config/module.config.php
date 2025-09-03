@@ -1,6 +1,8 @@
 <?php
 namespace Common;
 
+use Common\Console\GlobalTranslatorInitializer;
+use Common\Console\RoutesInitializer;
 use Common\Db\Functions\Distance;
 use Common\Router\HttpRouteCreator;
 use Common\View\Helper\AbsoluteUrl;
@@ -26,6 +28,13 @@ return [
 			'global' => [
 				'enabled' => true,
 			],
+		],
+	],
+
+	'console' => [
+		'initializers' => [
+			GlobalTranslatorInitializer::class,
+			RoutesInitializer::class,
 		],
 	],
 
