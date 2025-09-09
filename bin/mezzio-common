@@ -2,11 +2,15 @@
 <?php
 declare(strict_types=1);
 
+use Common\Cli\HealthCheck;
+use Common\Cli\Shutdownable;
+
 chdir(__DIR__ . '/../../../..');
 
 require 'vendor/autoload.php';
 
-$config = include 'config/config.php';
+$container = require 'config/container.php';
+$config    = include 'config/config.php';
 
 $command = $argv[1] ?? null;
 
@@ -50,6 +54,58 @@ if ($command === 'clear-config-cache')
 		PHP_EOL
 	);
 	exit(0);
+}
+
+if ($command === 'shutdownable')
+{
+	$shutdownableExitCode = 0;
+
+	foreach (($config['common']['shutdownable']['checkers'] ?? []) as $checkerClass)
+	{
+		/**
+		 * @var Shutdownable $checker
+		 */
+		$checker = $container->get($checkerClass);
+
+		if (!$checker instanceof Shutdownable)
+		{
+			throw new Exception('Shutdownable checker class must implement Shutdownable');
+		}
+
+		if (!$checker->isShutdownable())
+		{
+			$shutdownableExitCode = 1;
+			break;
+		}
+	}
+
+	exit($shutdownableExitCode);
+}
+
+if ($command === 'health-check')
+{
+	$healthCheckExitCode = 0;
+
+	foreach (($config['common']['health-check']['checkers'] ?? []) as $checkerClass)
+	{
+		/**
+		 * @var HealthCheck $checker
+		 */
+		$checker = $container->get($checkerClass);
+
+		if (!$checker instanceof HealthCheck)
+		{
+			throw new Exception('Health check checker class must implement HealthCheck');
+		}
+
+		if (!$checker->isHealthy())
+		{
+			$healthCheckExitCode = 1;
+			break;
+		}
+	}
+
+	exit($healthCheckExitCode);
 }
 
 printf(
