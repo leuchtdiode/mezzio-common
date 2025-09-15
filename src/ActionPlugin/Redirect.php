@@ -18,10 +18,15 @@ class Redirect
 		return $this;
 	}
 
-	public function toRoute(string $routeName, int $status = 302): ResponseInterface
+	public function toRoute(
+		string $routeName,
+		int $status = 302,
+		?array $routeParams = [],
+		?array $queryParams = []
+	): ResponseInterface
 	{
 		return new RedirectResponse(
-			$this->urlHelper->generate($routeName),
+			$this->urlHelper->generate($routeName, $routeParams ?? [], $queryParams ?? []),
 			$status
 		);
 	}
