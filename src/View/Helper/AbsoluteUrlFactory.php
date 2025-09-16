@@ -20,7 +20,7 @@ class AbsoluteUrlFactory implements FactoryInterface
 	public function __invoke(
 		ContainerInterface $container,
 		$requestedName,
-		array $options = null
+		?array $options = null
 	)
 	{
 		return new AbsoluteUrl(
