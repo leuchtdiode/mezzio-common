@@ -58,28 +58,46 @@ if ($command === 'clear-config-cache')
 
 if ($command === 'shutdownable')
 {
-	$shutdownableExitCode = 0;
+	$shutdownableConfig = $config['common']['shutdownable'];
 
-	foreach (($config['common']['shutdownable']['checkers'] ?? []) as $checkerClass)
+	$startTime = time();
+
+	while (true)
 	{
-		/**
-		 * @var Shutdownable $checker
-		 */
-		$checker = $container->get($checkerClass);
-
-		if (!$checker instanceof Shutdownable)
+		if ((time() - $startTime) >= $shutdownableConfig['timeout'])
 		{
-			throw new Exception('Shutdownable checker class must implement Shutdownable');
-		}
-
-		if (!$checker->isShutdownable())
-		{
-			$shutdownableExitCode = 1;
 			break;
 		}
+
+		$shutdownable = true;
+
+		foreach (($shutdownableConfig['checkers'] ?? []) as $checkerClass)
+		{
+			/**
+			 * @var Shutdownable $checker
+			 */
+			$checker = $container->get($checkerClass);
+
+			if (!$checker instanceof Shutdownable)
+			{
+				throw new Exception('Shutdownable checker class must implement Shutdownable');
+			}
+
+			if (!$checker->isShutdownable())
+			{
+				$shutdownable = false;
+			}
+		}
+
+		if ($shutdownable)
+		{
+			exit(0);
+		}
+
+		sleep($shutdownableConfig['checkInterval']);
 	}
 
-	exit($shutdownableExitCode);
+	exit(1);
 }
 
 if ($command === 'health-check')
