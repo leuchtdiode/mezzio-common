@@ -3,6 +3,7 @@ namespace Common;
 
 use Common\Console\GlobalTranslatorInitializer;
 use Common\Console\RoutesInitializer;
+use Common\Container\RouterFactory;
 use Common\Db\Functions\Distance;
 use Common\Router\HttpRouteCreator;
 use Common\View\Helper\AbsoluteUrl;
@@ -16,6 +17,7 @@ use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\Command as MigrationsCommand;
 use Mezzio\Application;
 use Mezzio\Container\ApplicationConfigInjectionDelegator;
+use Mezzio\Router\RouterInterface;
 use Roave\PsrContainerDoctrine\EntityManagerFactory;
 use Roave\PsrContainerDoctrine\Migrations\CommandFactory;
 use Roave\PsrContainerDoctrine\Migrations\ConfigurationLoaderFactory;
@@ -88,6 +90,7 @@ return [
 			'Config' => 'config',
 		],
 		'factories'          => [
+			RouterInterface::class                       => RouterFactory::class,
 			// doctrine cli
 			'doctrine.entity_manager.orm_default'        => EntityManagerFactory::class,
 			MigrationsCommand\CurrentCommand::class      => CommandFactory::class,
