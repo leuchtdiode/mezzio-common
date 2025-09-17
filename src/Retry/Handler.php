@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Common\Retry;
 
+use RuntimeException;
 use Throwable;
 
 class Handler
@@ -10,34 +11,28 @@ class Handler
 	/**
 	 * @throws Throwable
 	 */
-	public function handle(HandleParams $params): void
+	public function handle(HandleParams $params): mixed
 	{
-		$this->execute($params, 1);
-	}
+		$try = 1;
 
-	/**
-	 * @throws Throwable
-	 */
-	private function execute(HandleParams $params, int $try): void
-	{
 		$callable = $params->getCallable();
 
-		try
+		$exception = null;
+
+		while ($try++ <= $params->getTries())
 		{
-			$callable();
-		}
-		catch (Throwable $t)
-		{
-			if (++$try <= $params->getTries())
+			try
 			{
-				sleep($params->getTimeout());
-
-				$this->execute($params, $try);
-
-				return;
+				return $callable();
 			}
+			catch (Throwable $t)
+			{
+				$exception = $t;
 
-			throw $t;
+				sleep($params->getTimeout());
+			}
 		}
+
+		throw $exception ?? new RuntimeException('Unknown retry error');
 	}
 }
