@@ -15,10 +15,12 @@ readonly class Render
 	{
 	}
 
-	public function viewModel(ViewModel $viewModel): HtmlResponse
+	public function viewModel(ViewModel $viewModel, int $status = 200, ?array $headers = null): HtmlResponse
 	{
 		return new HtmlResponse(
-			$this->renderer->render($viewModel->getTemplate(), $viewModel->getVariables())
+			html: $this->renderer->render($viewModel->getTemplate(), $viewModel->getVariables()),
+			status: $status,
+			headers: $headers ?? [],
 		);
 	}
 }
