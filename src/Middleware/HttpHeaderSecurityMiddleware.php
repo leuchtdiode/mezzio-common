@@ -20,16 +20,18 @@ readonly class HttpHeaderSecurityMiddleware implements MiddlewareInterface
 	{
 		$protocol = $this->config['common']['url']['protocol'] ?? null;
 
-		$request = $request
-			->withHeader('X-Frame-Options', 'DENY')
-			->withHeader('X-Content-Type-Options', 'nosniff');
+		$response = $handler->handle($request);
+
+		$response = $response
+			->withAddedHeader('x-frame-options', 'DENY')
+			->withAddedHeader('x-content-type-Options', 'nosniff');
 
 		if ($protocol === 'https')
 		{
-			$request = $request
-				->withHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+			$response = $response
+				->withAddedHeader('strict-transport-security', 'max-age=31536000; includeSubDomains; preload');
 		}
 
-		return $handler->handle($request);
+		return $response;
 	}
 }
