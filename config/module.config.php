@@ -35,6 +35,12 @@ return [
 			'timeout'       => 300,
 			'checkInterval' => 5,
 		],
+		'routing'      => [
+			'errorHandler' => [
+				'template' => 'error::error',
+				'layout'   => 'layout::default',
+			],
+		],
 	],
 
 	'console' => [

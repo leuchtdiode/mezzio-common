@@ -12,11 +12,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class RouteNotFoundMiddleware implements MiddlewareInterface
+readonly class RouteNotFoundMiddleware implements MiddlewareInterface
 {
 	public function __construct(
-		private readonly ResponseFactoryInterface $responseFactory,
-		private readonly TemplateRendererInterface $renderer,
+		private array $config,
+		private ResponseFactoryInterface $responseFactory,
+		private TemplateRendererInterface $renderer,
 	)
 	{
 	}
@@ -33,6 +34,8 @@ class RouteNotFoundMiddleware implements MiddlewareInterface
 			return $handler->handle($request);
 		}
 
+		$config = $this->config['common']['routing']['errorHandler'];
+
 		$response = $this->responseFactory
 			->createResponse()
 			->withStatus(StatusCodeInterface::STATUS_NOT_FOUND);
@@ -40,7 +43,7 @@ class RouteNotFoundMiddleware implements MiddlewareInterface
 		$response
 			->getBody()
 			->write(
-				$this->renderer->render('error::error', [ 'request' => $request, 'layout' => 'layout::default' ])
+				$this->renderer->render($config['template'], [ 'request' => $request, 'layout' => $config['layout'] ])
 			);
 
 		return $response;
