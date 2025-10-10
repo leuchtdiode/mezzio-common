@@ -24,7 +24,8 @@ readonly class HttpHeaderSecurityMiddleware implements MiddlewareInterface
 
 		$response = $response
 			->withAddedHeader('x-frame-options', 'DENY')
-			->withAddedHeader('x-content-type-Options', 'nosniff');
+			->withAddedHeader('x-content-type-Options', 'nosniff')
+			->withAddedHeader('x-powered-by', '');
 
 		if ($protocol === 'https')
 		{
