@@ -41,6 +41,11 @@ return [
 				'layout'   => 'layout::default',
 			],
 		],
+		'health'       => [
+			'enabled'       => false,
+			'checks'        => [],
+			'restrictedIps' => [], // e.g. direct IP 172.0.0.1 or 172.*.*.* as placeholder
+		],
 	],
 
 	'console' => [
@@ -56,6 +61,7 @@ return [
 			->setChildRoutes(
 				[
 					'country' => require 'routes/country.php',
+					'health'  => require 'routes/health.php',
 				]
 			),
 	],
