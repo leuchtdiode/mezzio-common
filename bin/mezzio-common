@@ -2,7 +2,6 @@
 <?php
 declare(strict_types=1);
 
-use Common\Cli\HealthCheck;
 use Common\Cli\Shutdownable;
 
 chdir(__DIR__ . '/../../../..');
@@ -98,32 +97,6 @@ if ($command === 'shutdownable')
 	}
 
 	exit(1);
-}
-
-if ($command === 'health-check')
-{
-	$healthCheckExitCode = 0;
-
-	foreach (($config['common']['health-check']['checkers'] ?? []) as $checkerClass)
-	{
-		/**
-		 * @var HealthCheck $checker
-		 */
-		$checker = $container->get($checkerClass);
-
-		if (!$checker instanceof HealthCheck)
-		{
-			throw new Exception('Health check checker class must implement HealthCheck');
-		}
-
-		if (!$checker->isHealthy())
-		{
-			$healthCheckExitCode = 1;
-			break;
-		}
-	}
-
-	exit($healthCheckExitCode);
 }
 
 printf(
