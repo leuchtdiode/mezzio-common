@@ -115,6 +115,7 @@ abstract class Data
 				if (($defaultValue = $definition->getDefaultValue()) !== null)
 				{
 					$rawValue = $defaultValue;
+					$value->setValue($rawValue);
 				}
 				else
 				{
