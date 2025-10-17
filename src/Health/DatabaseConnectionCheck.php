@@ -30,9 +30,6 @@ readonly class DatabaseConnectionCheck implements Check
 		$result = new CheckResult();
 		$result->setKey('database-connection');
 
-		echo 'test';
-		exit;
-
 		return $result;
 	}
 }
