@@ -48,6 +48,12 @@ class EntitySaver
 			}
 			catch (RetryableException $e)
 			{
+				error_log(sprintf(
+					'Entity saver retryable exception: %s - %s',
+					get_class($entity),
+					$e->getMessage(),
+				));
+
 				$this->entityManager->rollback();
 
 				$attempt++;
@@ -62,6 +68,12 @@ class EntitySaver
 			}
 			catch (Throwable $e)
 			{
+				error_log(sprintf(
+					'Entity saver exception: %s - %s',
+					get_class($entity),
+					$e->getMessage(),
+				));
+
 				$this->entityManager->rollback();
 				throw $e;
 			}
