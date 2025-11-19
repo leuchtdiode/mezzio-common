@@ -6,8 +6,8 @@ use Doctrine\ORM\QueryBuilder;
 
 abstract class Distance implements Order
 {
-	protected float $latitude;
-	protected float $longitude;
+	protected float  $latitude;
+	protected float  $longitude;
 	protected string $direction;
 
 	abstract protected function getAlias(): string;
@@ -17,6 +17,16 @@ abstract class Distance implements Order
 		$this->latitude  = $latitude;
 		$this->longitude = $longitude;
 		$this->direction = $direction;
+	}
+
+	public function getMissingDefaultDistance(): int
+	{
+		return 999999999;
+	}
+
+	public function isSortMissingLast(): int
+	{
+		return true;
 	}
 
 	public static function nearest(float $latitude, float $longitude): self
@@ -35,19 +45,28 @@ abstract class Distance implements Order
 
 		$distanceColumn = uniqid('d');
 
+		$missingDefaultDistance = $this->getMissingDefaultDistance();
+
+		if (!$this->isSortMissingLast())
+		{
+			$missingDefaultDistance = $missingDefaultDistance * -1;
+		}
+
 		$queryBuilder
 			->addSelect(
 				sprintf(
-					'DISTANCE(:%s, :%s, %s.latitude, %s.longitude) AS HIDDEN %s',
+					'COALESCE(DISTANCE(:%s, :%s, %s.latitude, %s.longitude), :%s) AS HIDDEN %s',
 					$latitudeParam = uniqid('lat'),
 					$longitudeParam = uniqid('lon'),
 					$alias,
 					$alias,
+					$missingDefaultDistanceColumn = uniqid('md'),
 					$distanceColumn
 				)
 			)
 			->setParameter($latitudeParam, $this->latitude)
 			->setParameter($longitudeParam, $this->longitude)
+			->setParameter($missingDefaultDistanceColumn, $missingDefaultDistance)
 			->addOrderBy($distanceColumn, $this->direction);
 	}
 }
