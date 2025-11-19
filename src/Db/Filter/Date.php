@@ -32,6 +32,11 @@ abstract class Date implements Filter
 		$this->mode  = $mode;
 	}
 
+	protected function isDateTime(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * @throws Exception
 	 */
@@ -99,6 +104,10 @@ abstract class Date implements Filter
 	{
 		$exp = $queryBuilder->expr();
 
+		$format = $this->isDateTime()
+			? 'Y-m-d H:i:s'
+			: 'Y-m-d';
+
 		switch ($this->mode)
 		{
 			case self::IS:
@@ -106,7 +115,7 @@ abstract class Date implements Filter
 				$queryBuilder->andWhere(
 					$exp->eq(
 						$this->getColumn(),
-						$exp->literal($this->value->format('Y-m-d H:i:s'))
+						$exp->literal($this->value->format($format))
 					)
 				);
 
@@ -126,7 +135,7 @@ abstract class Date implements Filter
 				$queryBuilder->andWhere(
 					$exp->gte(
 						$this->getColumn(),
-						$exp->literal($this->value->format('Y-m-d H:i:s'))
+						$exp->literal($this->value->format($format))
 					)
 				);
 
@@ -136,7 +145,7 @@ abstract class Date implements Filter
 				$queryBuilder->andWhere(
 					$exp->lte(
 						$this->getColumn(),
-						$exp->literal($this->value->format('Y-m-d H:i:s'))
+						$exp->literal($this->value->format($format))
 					)
 				);
 
@@ -146,7 +155,7 @@ abstract class Date implements Filter
 				$queryBuilder->andWhere(
 					$exp->lt(
 						$this->getColumn(),
-						$exp->literal($this->value->format('Y-m-d H:i:s'))
+						$exp->literal($this->value->format($format))
 					)
 				);
 
@@ -156,7 +165,7 @@ abstract class Date implements Filter
 				$queryBuilder->andWhere(
 					$exp->gt(
 						$this->getColumn(),
-						$exp->literal($this->value->format('Y-m-d H:i:s'))
+						$exp->literal($this->value->format($format))
 					)
 				);
 
