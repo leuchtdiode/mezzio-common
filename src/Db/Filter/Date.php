@@ -1,8 +1,9 @@
 <?php
 namespace Common\Db\Filter;
 
-use DateTime;
 use Common\Db\Filter;
+use Common\Util\ClassUtil;
+use DateTime;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use RuntimeException;
@@ -21,7 +22,10 @@ abstract class Date implements Filter
 
 	protected string $mode;
 
-	abstract protected function getColumn(): string;
+	protected function getColumn(): string
+	{
+		return 't.' . lcfirst(ClassUtil::getShortName($this));
+	}
 
 	private function __construct(
 		DateTime $value,

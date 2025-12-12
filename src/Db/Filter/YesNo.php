@@ -2,13 +2,17 @@
 namespace Common\Db\Filter;
 
 use Common\Db\Filter;
+use Common\Util\ClassUtil;
 use Doctrine\ORM\QueryBuilder;
 
 abstract class YesNo implements Filter
 {
 	protected bool $value;
 
-	abstract protected function getColumn(): string;
+	protected function getColumn(): string
+	{
+		return 't.' . lcfirst(ClassUtil::getShortName($this));
+	}
 
 	private function __construct(bool $value)
 	{

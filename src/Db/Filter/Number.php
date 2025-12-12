@@ -2,6 +2,7 @@
 namespace Common\Db\Filter;
 
 use Common\Db\Filter;
+use Common\Util\ClassUtil;
 use Doctrine\ORM\QueryBuilder;
 
 abstract class Number implements Filter
@@ -16,7 +17,10 @@ abstract class Number implements Filter
 
 	private mixed $parameter;
 
-	abstract protected function getField(): string;
+	protected function getField(): string
+	{
+		return 't.' . lcfirst(ClassUtil::getShortName($this));
+	}
 
 	protected function getParameterName(): ?string
 	{
