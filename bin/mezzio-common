@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Common\Cli\Shutdownable;
+use Common\Shutdown\State as ShutdownState;
 
 chdir(__DIR__ . '/../../../..');
 
@@ -55,9 +56,14 @@ if ($command === 'clear-config-cache')
 	exit(0);
 }
 
-if ($command === 'shutdownable')
+if ($command === 'shutdownable' || $command === 'shutdown')
 {
-	$shutdownableConfig = $config['common']['shutdownable'];
+	if ($command === 'shutdownable')
+	{
+		trigger_deprecation('leuchtdiode/mezzio-common', '1.1.0', 'The "shutdownable" command is deprecated; use "shutdown" instead');
+	}
+
+	$shutdownableConfig = $config['common']['shutdown'] ?? $config['common']['shutdownable'];
 
 	$startTime = time();
 
@@ -90,6 +96,11 @@ if ($command === 'shutdownable')
 
 		if ($shutdownable)
 		{
+			/**
+			 * @var ShutdownState $shutdownState
+			 */
+			$shutdownState = $container->get(ShutdownState::class);
+			$shutdownState->markAsShuttingDown();
 			exit(0);
 		}
 

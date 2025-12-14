@@ -26,16 +26,19 @@ use Roave\PsrContainerDoctrine\Migrations\DependencyFactoryFactory;
 return [
 
 	'common' => [
-		'translator'   => [
+		'translator' => [
 			'global' => [
 				'enabled' => true,
 			],
 		],
-		'shutdownable' => [
+		'shutdown'   => [
 			'timeout'       => 300,
 			'checkInterval' => 5,
+			'state'         => [
+				'filePath' => 'data/shutdown.lock',
+			],
 		],
-		'routing'      => [
+		'routing'    => [
 			'errorHandler' => [
 				'template' => 'error::error',
 				'layout'   => 'layout::default',
