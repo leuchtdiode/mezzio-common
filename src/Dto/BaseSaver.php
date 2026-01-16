@@ -147,6 +147,18 @@ abstract class BaseSaver
 				continue;
 			}
 
+			// nested values for relations can be of type BaseSaveData too -> transform here to arrays
+			if (is_array($value))
+			{
+				foreach ($value as $i => $v)
+				{
+					if ($v instanceof BaseSaveData)
+					{
+						$value[$i] = $v->getData();
+					}
+				}
+			}
+
 			$value = $this->transformer->transformPreValidation(
 				TransformParams::create()
 					->setClassMetadata($classMetaData)
