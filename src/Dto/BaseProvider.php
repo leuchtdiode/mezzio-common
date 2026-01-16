@@ -162,6 +162,18 @@ abstract class BaseProvider
 	}
 
 	/**
+	 * @throws Throwable
+	 */
+	public function singleByCriteria(array $criteria, ?CreateOptions $createOptions = null): ?Dto
+	{
+		$repository = $this->getRepository();
+
+		return ($entity = $repository->findOneBy($criteria))
+			? $this->createDto($entity, $createOptions)
+			: null;
+	}
+
+	/**
 	 * @return Dto[]
 	 * @throws Throwable
 	 */
