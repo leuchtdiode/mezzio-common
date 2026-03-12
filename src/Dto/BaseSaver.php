@@ -131,9 +131,29 @@ abstract class BaseSaver
 
 		$classMetaData = $this->entityManager->getClassMetadata($entityClass);
 
+		$dataArray = $data->getData();
+
 		// TODO validate mandatory properties as well, even if they are non existing in the data payload (only if addition)
 
-		foreach ($data->getData() as $property => $value)
+		$saveConfig                  = (new ReflectionClass($this))->getAttributes(SaveConfig::class)[0] ?? null;
+		$preSaveDataManipulatorClass = $saveConfig?->getArguments()['preSaveDataManipulator'] ?? null;
+
+		if ($dataArray && $preSaveDataManipulatorClass)
+		{
+			/**
+			 * @var Save\PreSaveDataManipulator $preSaveDataManipulator
+			 */
+			$preSaveDataManipulator = $this->container->get($preSaveDataManipulatorClass);
+
+			$dataArray = $preSaveDataManipulator
+				->handle(
+					Save\PreSaveDataManipulatorParams::create()
+						->setData($dataArray)
+				)
+				->getData();
+		}
+
+		foreach ($dataArray as $property => $value)
 		{
 			// TODO auto trim
 
