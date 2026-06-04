@@ -162,7 +162,7 @@ abstract class Data
 					$value->addError(
 						PropertyIsInvalid::create(
 							$this->getErrorLabel($definition),
-							$message
+							Translator::translate($message)
 						)
 					);
 				}

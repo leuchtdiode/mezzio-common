@@ -7,14 +7,11 @@ use Common\Translator;
 
 class PropertyIsInvalid extends Error
 {
-	private string $name;
-
-	private string $message;
-
-	private function __construct(string $name, string $message)
+	private function __construct(
+		private readonly string $name,
+		private readonly string $message
+	)
 	{
-		$this->name    = $name;
-		$this->message = $message;
 	}
 
 	public static function create(string $name, string $message): self
@@ -31,6 +28,10 @@ class PropertyIsInvalid extends Error
 	#[ObjectToArrayHydratorProperty]
 	public function getMessage(): string
 	{
-		return Translator::translate($this->name . ' ist ungültig (' . $this->message . ')');
+		return sprintf(
+			Translator::translate('%s ist ungültig (%s)'),
+			$this->name,
+			$this->message
+		);
 	}
 }

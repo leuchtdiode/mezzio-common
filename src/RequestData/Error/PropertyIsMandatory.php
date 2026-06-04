@@ -7,11 +7,10 @@ use Common\Translator;
 
 class PropertyIsMandatory extends Error
 {
-	private string $name;
-
-	private function __construct(string $name)
+	private function __construct(
+		private readonly string $name
+	)
 	{
-		$this->name = $name;
 	}
 
 	public static function create(string $name): self
@@ -28,6 +27,9 @@ class PropertyIsMandatory extends Error
 	#[ObjectToArrayHydratorProperty]
 	public function getMessage(): string
 	{
-		return Translator::translate($this->name . ' darf nicht leer sein');
+		return sprintf(
+			Translator::translate('%s darf nicht leer sein'),
+			$this->name
+		);
 	}
 }
