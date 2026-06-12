@@ -18,7 +18,7 @@ abstract class BaseProvider
 	abstract protected function getKey(): string;
 
 	public function __construct(
-		private readonly ContainerInterface $container,
+		protected readonly ContainerInterface $container,
 		private readonly KeyConfig $keyConfig,
 		private readonly DefaultMapper $defaultMapper
 	)
