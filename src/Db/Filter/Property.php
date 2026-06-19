@@ -14,10 +14,17 @@ use Throwable;
 
 class Property implements Filter
 {
+	private ?Orx $addToExpression = null;
+
 	public function __construct(
 		private readonly BaseParams $params
 	)
 	{
+	}
+
+	public function setAddToExpression(?Orx $addToExpression): void
+	{
+		$this->addToExpression = $addToExpression;
 	}
 
 	public static function filter(BaseParams $params): static
@@ -100,9 +107,16 @@ class Property implements Filter
 
 		$subQb->andWhere($orX);
 
-		$queryBuilder->andWhere(
-			$expr->exists($subQb->getDQL())
-		);
+		if (($addToExpression = $this->addToExpression))
+		{
+			$addToExpression->add($expr->exists($subQb->getDQL()));
+		}
+		else
+		{
+			$queryBuilder->andWhere(
+				$expr->exists($subQb->getDQL())
+			);
+		}
 	}
 
 	/**

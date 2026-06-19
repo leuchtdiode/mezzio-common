@@ -4,7 +4,9 @@ namespace Common\Dto;
 use Common\Db\Entity;
 use Common\Db\EntityRepository;
 use Common\Db\Filter\Property;
+use Common\Db\Filter\PropertyMultipleOr;
 use Common\Db\FilterChain;
+use Common\Dto\Provide\FilterItem;
 use Common\Dto\Provide\HandleFilterParams;
 use Common\Dto\Provide\HandleFilterResult;
 use DateTime;
@@ -38,102 +40,7 @@ abstract class BaseProvider
 
 		foreach ($params->getFilter() as $filterItem)
 		{
-			if ($filterItem->getType() === 'generic')
-			{
-				$value = $filterItem->getValue();
-
-				$filterType = $value['filterType'];
-
-				if ($filterType === 'equals')
-				{
-					$filterChain->addFilter(
-						Property::filter(
-							Property\EqualsParams::create()
-								->setPropertyChain(
-									Property\PropertyChain::buildFromString($filterItem->getProperty())
-								)
-								->setValues($value['filterValues'])
-						)
-					);
-				}
-
-				if ($filterType === 'not-equals')
-				{
-					$filterChain->addFilter(
-						Property::filter(
-							Property\EqualsParams::create()
-								->setPropertyChain(
-									Property\PropertyChain::buildFromString($filterItem->getProperty())
-								)
-								->setValues($value['filterValues'])
-								->setNot(true)
-						)
-					);
-				}
-
-				if ($filterType === 'boolean')
-				{
-					$filterChain->addFilter(
-						Property::filter(
-							Property\BooleanParams::byValue($value['filterValue'])
-								->setPropertyChain(
-									Property\PropertyChain::buildFromString($filterItem->getProperty())
-								)
-						)
-					);
-				}
-
-				if ($filterType === 'date')
-				{
-					$filterChain->addFilter(
-						Property::filter(
-							Property\DateParams::create($value['dateType'], new DateTime($value['date']))
-								->setPropertyChain(
-									Property\PropertyChain::buildFromString($filterItem->getProperty())
-								)
-						)
-					);
-				}
-
-				if ($filterType === 'in')
-				{
-					$filterChain->addFilter(
-						Property::filter(
-							Property\InParams::create()
-								->setValues($value['filterValues'])
-								->setPropertyChain(
-									Property\PropertyChain::buildFromString($filterItem->getProperty())
-								)
-						)
-					);
-				}
-
-				if ($filterType === 'null')
-				{
-					$filterChain->addFilter(
-						Property::filter(
-							Property\NullParams::isNull()
-								->setPropertyChain(
-									Property\PropertyChain::buildFromString($filterItem->getProperty())
-								)
-						)
-					);
-				}
-
-				if ($filterType === 'not-null')
-				{
-					$filterChain->addFilter(
-						Property::filter(
-							Property\NullParams::isNotNull()
-								->setPropertyChain(
-									Property\PropertyChain::buildFromString($filterItem->getProperty())
-								)
-						)
-					);
-				}
-
-				// more generic filters here
-			}
+			$this->handleFilterItem($filterChain, $filterItem);
 		}
 
 		$result->setFilterChain($filterChain);
@@ -258,5 +165,115 @@ abstract class BaseProvider
 			},
 			$entities
 		);
+	}
+
+	protected function handleFilterItem(FilterChain $filterChain, FilterItem $filterItem): void
+	{
+		if ($filterItem->getType() === 'or')
+		{
+			$orProperties = array_map(
+				fn(array $childItem) => $this->getGenericFilter(FilterItem::fromArray($childItem)),
+				$filterItem->getValue()
+			);
+
+			$orProperties = array_filter($orProperties);
+
+			$filterChain->addFilter(
+				PropertyMultipleOr::filter($orProperties)
+			);
+		}
+
+		if ($filterItem->getType() === 'generic')
+		{
+			if (($genericItem = $this->getGenericFilter($filterItem)))
+			{
+				$filterChain->addFilter($genericItem);
+			}
+		}
+	}
+
+	protected function getGenericFilter(FilterItem $filterItem): ?Property
+	{
+		$value = $filterItem->getValue();
+
+		$filterType = $value['filterType'];
+
+		if ($filterType === 'equals')
+		{
+			return Property::filter(
+				Property\EqualsParams::create()
+					->setPropertyChain(
+						Property\PropertyChain::buildFromString($filterItem->getProperty())
+					)
+					->setValues($value['filterValues'])
+			);
+		}
+
+		if ($filterType === 'not-equals')
+		{
+			return Property::filter(
+				Property\EqualsParams::create()
+					->setPropertyChain(
+						Property\PropertyChain::buildFromString($filterItem->getProperty())
+					)
+					->setValues($value['filterValues'])
+					->setNot(true)
+			);
+		}
+
+		if ($filterType === 'boolean')
+		{
+			return Property::filter(
+				Property\BooleanParams::byValue($value['filterValue'])
+					->setPropertyChain(
+						Property\PropertyChain::buildFromString($filterItem->getProperty())
+					)
+			);
+		}
+
+		if ($filterType === 'date')
+		{
+			return Property::filter(
+				Property\DateParams::create($value['dateType'], new DateTime($value['date']))
+					->setPropertyChain(
+						Property\PropertyChain::buildFromString($filterItem->getProperty())
+					)
+			);
+		}
+
+		if ($filterType === 'in')
+		{
+			return Property::filter(
+				Property\InParams::create()
+					->setValues($value['filterValues'])
+					->setPropertyChain(
+						Property\PropertyChain::buildFromString($filterItem->getProperty())
+					)
+			);
+		}
+
+		if ($filterType === 'null')
+		{
+			return Property::filter(
+				Property\NullParams::isNull()
+					->setPropertyChain(
+						Property\PropertyChain::buildFromString($filterItem->getProperty())
+					)
+			);
+		}
+
+		if ($filterType === 'not-null')
+		{
+			return Property::filter(
+				Property\NullParams::isNotNull()
+					->setPropertyChain(
+						Property\PropertyChain::buildFromString($filterItem->getProperty())
+					)
+			);
+		}
+
+		// more generic filters here
+
+		return null;
 	}
 }
