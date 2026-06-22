@@ -26,7 +26,7 @@
 		"laminas/laminas-servicemanager": "^3.23.0",
 		"doctrine/doctrine-orm-module": "^6.3.0",
 		"nesbot/carbon": "^3.10.0",
-		"psr/http-message": "^1.0.2",
+		"psr/http-message": "^1.0 || ^2.0",
 		"laminas/laminas-diactoros": "^3.6.0",
 		"psr/http-server-handler": "^1.0.0",
 		"mezzio/mezzio-laminasrouter": "^3.11.0",
