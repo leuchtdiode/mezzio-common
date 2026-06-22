@@ -5,9 +5,11 @@ namespace CommonTest\Db\Order;
 use CommonTest\Base;
 use CommonTest\EntityManagerMockTrait;
 use Doctrine\ORM\QueryBuilder;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 
+#[AllowMockObjectsWithoutExpectations]
 class AscOrDescTest extends Base
 {
 	use EntityManagerMockTrait;

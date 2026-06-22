@@ -27,9 +27,6 @@ return function (Application $app, MiddlewareFactory $factory, ContainerInterfac
 	$container->get(ErrorHandler::class);
 	$app->pipe(GlobalTranslatorMiddleware::class);
 	$app->pipe(RouteMiddleware::class);
-	$app->pipe(ImplicitHeadMiddleware::class);
-	$app->pipe(ImplicitOptionsMiddleware::class);
-	$app->pipe(MethodNotAllowedMiddleware::class);
 	$app->pipe(DispatchMiddleware::class);
 	$app->pipe(NotFoundHandler::class);
 };
