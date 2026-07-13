@@ -21,8 +21,6 @@ $aggregator = new ConfigAggregator([
 	ConfigProvider::class,
 	\Mezzio\ConfigProvider::class,
 	\Mezzio\Router\ConfigProvider::class,
-	\Laminas\Cache\ConfigProvider::class,
-	\Laminas\Cache\Storage\Adapter\Memory\ConfigProvider::class,
 ], $cacheConfig['config_cache_path']);
 
 return $aggregator->getMergedConfig();

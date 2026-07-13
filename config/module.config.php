@@ -15,6 +15,8 @@ use Common\View\Helper\StaticResourceFactory;
 use Doctrine\Migrations\Configuration\Migration\ConfigurationLoader;
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\Command as MigrationsCommand;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Mezzio\Application;
 use Mezzio\Container\ApplicationConfigInjectionDelegator;
 use Mezzio\Router\RouterInterface;
@@ -22,6 +24,8 @@ use Roave\PsrContainerDoctrine\EntityManagerFactory;
 use Roave\PsrContainerDoctrine\Migrations\CommandFactory;
 use Roave\PsrContainerDoctrine\Migrations\ConfigurationLoaderFactory;
 use Roave\PsrContainerDoctrine\Migrations\DependencyFactoryFactory;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 return [
 
@@ -71,6 +75,14 @@ return [
 				],
 			],
 		],
+		'cache'         => [
+			'array'      => [
+				'class' => ArrayAdapter::class,
+			],
+			'filesystem' => [
+				'class' => FilesystemAdapter::class,
+			],
+		],
 	],
 
 	'view_helpers' => [
@@ -102,6 +114,9 @@ return [
 			RouterInterface::class                       => RouterFactory::class,
 			// doctrine cli
 			'doctrine.entity_manager.orm_default'        => EntityManagerFactory::class,
+			EntityManager::class                         => EntityManagerFactory::class,
+			EntityManagerInterface::class                => EntityManagerFactory::class,
+			// migrations
 			MigrationsCommand\CurrentCommand::class      => CommandFactory::class,
 			MigrationsCommand\DiffCommand::class         => CommandFactory::class,
 			MigrationsCommand\DumpSchemaCommand::class   => CommandFactory::class,
