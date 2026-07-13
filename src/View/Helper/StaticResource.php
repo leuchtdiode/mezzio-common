@@ -1,9 +1,7 @@
 <?php
 namespace Common\View\Helper;
 
-use Laminas\View\Helper\AbstractHelper;
-
-class StaticResource extends AbstractHelper
+class StaticResource
 {
 	const NAME = 'staticResource';
 

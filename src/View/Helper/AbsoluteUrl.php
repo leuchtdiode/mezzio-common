@@ -4,9 +4,8 @@ namespace Common\View\Helper;
 use Common\Router\BaseUrlProvider;
 use Common\Util\StringUtil;
 use Exception;
-use Laminas\View\Helper\AbstractHelper;
 
-class AbsoluteUrl extends AbstractHelper
+class AbsoluteUrl
 {
 	private BaseUrlProvider $baseUrlProvider;
 

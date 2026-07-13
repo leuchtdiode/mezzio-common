@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Common\Dto\Action;
 
-use Laminas\Stdlib\RequestInterface;
-
 class SingleParams
 {
 	private string $dtoKey;

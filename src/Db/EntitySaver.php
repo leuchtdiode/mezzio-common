@@ -41,7 +41,7 @@ class EntitySaver
 			try
 			{
 				$this->entityManager->beginTransaction();
-				$this->entityManager->flush($entity);
+				$this->entityManager->flush();
 				$this->entityManager->commit();
 
 				break;

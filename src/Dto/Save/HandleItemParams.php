@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Common\Dto\Save;
 
-use Common\Dto\BaseDto;
 use Common\Dto\BaseSaveData;
 
 class HandleItemParams

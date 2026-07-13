@@ -3,8 +3,8 @@ namespace Common\Db\Connection;
 
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\Exception as DriverException;
 use Exception;
+use Throwable;
 
 class FailSafePrimaryReadReplicaConnection extends PrimaryReadReplicaConnection
 {
@@ -12,7 +12,7 @@ class FailSafePrimaryReadReplicaConnection extends PrimaryReadReplicaConnection
 	 * @param string $connectionName
 	 * @return Connection
 	 * @throws Exception if no host to connect found
-	 * @throws DriverException
+	 * @throws Throwable
 	 */
 	protected function connectTo($connectionName): Connection
 	{
@@ -30,7 +30,9 @@ class FailSafePrimaryReadReplicaConnection extends PrimaryReadReplicaConnection
 		{
 			try
 			{
-				return $this->_driver->connect($dbConfig);
+				return $this
+					->getDriver()
+					->connect($dbConfig);
 			}
 			catch (Exception $exception)
 			{

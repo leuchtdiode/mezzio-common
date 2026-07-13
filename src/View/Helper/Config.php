@@ -1,9 +1,7 @@
 <?php
 namespace Common\View\Helper;
 
-use Laminas\View\Helper\AbstractHelper;
-
-class Config extends AbstractHelper
+class Config
 {
 	private array $config;
 

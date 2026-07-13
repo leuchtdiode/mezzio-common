@@ -97,7 +97,7 @@ abstract class Data
 				/**
 				 * @var FilterInterface $filter
 				 */
-				foreach ($filterChain->getFilters() as $filter)
+				foreach ($filterChain->getIterator() as $filter)
 				{
 					$rawValue = $filter->filter($rawValue);
 				}

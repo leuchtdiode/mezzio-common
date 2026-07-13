@@ -36,9 +36,11 @@
 		"roave/psr-container-doctrine": "^6.2.0",
 		"mezzio/mezzio-helpers": "^5.20.0",
 		"laminas/laminas-filter": "^2.42.0",
+		"laminas/laminas-view": "^2.44.0",
 		"symfony/cache": "^8.1.0"
 	},
 	"suggest": {
+		"ext-iconv": "*",
 		"ext-openssl": "*",
 		"ext-calendar": "*"
 	},

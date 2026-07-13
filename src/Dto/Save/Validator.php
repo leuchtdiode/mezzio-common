@@ -4,10 +4,8 @@ declare(strict_types=1);
 namespace Common\Dto\Save;
 
 use Common\Dto\PropertyConfig;
-use Common\RequestData\Transformer\Boolean;
 use Doctrine\ORM\EntityManager;
 use Laminas\I18n\Validator\DateTime as DateTimeValidator;
-use Laminas\Validator\Digits;
 use Laminas\Validator\NotEmpty;
 use Laminas\Validator\StringLength;
 use Laminas\Validator\Uuid;
