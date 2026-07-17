@@ -7,19 +7,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class BaseAction implements RequestHandlerInterface
 {
-	private ServerRequestInterface $request;
-
 	public function handle(ServerRequestInterface $request): ResponseInterface
 	{
-		$this->request = $request;
-
-		return $this->executeAction();
+		return $this->executeAction(
+			new ExecuteActionParams(request: $request)
+		);
 	}
 
-	abstract public function executeAction();
-
-	protected function getRequest(): ServerRequestInterface
-	{
-		return $this->request;
-	}
+	abstract public function executeAction(ExecuteActionParams $params): ResponseInterface;
 }
