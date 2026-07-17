@@ -5,5 +5,5 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class BaseJsonAction extends BaseAction
 {
-	abstract public function executeAction(): ResponseInterface;
+	abstract public function executeAction(ExecuteActionParams $params): ResponseInterface;
 }
