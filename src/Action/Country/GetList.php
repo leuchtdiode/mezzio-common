@@ -2,6 +2,7 @@
 namespace Common\Action\Country;
 
 use Common\Action\BaseJsonAction;
+use Common\Action\ExecuteActionParams;
 use Common\Action\JsonResponse;
 use Common\Country\Provider as CountryProvider;
 use Common\Hydration\ObjectToArrayHydrator;
@@ -20,7 +21,7 @@ class GetList extends BaseJsonAction
 	/**
 	 * @throws Exception
 	 */
-	public function executeAction(): ResponseInterface
+	public function executeAction(ExecuteActionParams $params): ResponseInterface
 	{
 		return JsonResponse::is()
 			->successful()
