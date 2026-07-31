@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Common\Db\Filter\Property;
 
+use Common\Db\NameGenerator;
 use Doctrine\ORM\Query\Expr\Comparison;
 use Doctrine\ORM\QueryBuilder;
 
@@ -35,7 +36,7 @@ class BooleanParams extends BaseParams
 	{
 		$expr = $queryBuilder->expr();
 
-		$parameter = uniqid('p');
+		$parameter = NameGenerator::next($queryBuilder, 'p');
 
 		if ($this->yesOrNo)
 		{

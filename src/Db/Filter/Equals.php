@@ -2,6 +2,7 @@
 namespace Common\Db\Filter;
 
 use Common\Db\Filter;
+use Common\Db\NameGenerator;
 use Common\Util\ClassUtil;
 use Doctrine\ORM\QueryBuilder;
 
@@ -80,8 +81,8 @@ abstract class Equals implements Filter
 	{
 		$expr = $queryBuilder->expr();
 
-		// parameter name is optional now for child, uses randomized string by default
-		$parameterName = $this->getParameterName() ?? uniqid('p');
+		// parameter name is optional now for child, uses generated name by default
+		$parameterName = $this->getParameterName() ?? NameGenerator::next($queryBuilder, 'p');
 
 		switch ($this->type)
 		{

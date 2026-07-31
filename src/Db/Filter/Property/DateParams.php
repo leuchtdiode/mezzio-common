@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Common\Db\Filter\Property;
 
+use Common\Db\NameGenerator;
 use DateTime;
 use Doctrine\ORM\Query\Expr\Comparison;
 use Doctrine\ORM\QueryBuilder;
@@ -64,7 +65,7 @@ class DateParams extends BaseParams
 	{
 		$exp = $queryBuilder->expr();
 
-		$valueParam = uniqid('vp');
+		$valueParam = NameGenerator::next($queryBuilder, 'vp');
 
 		switch ($this->type)
 		{

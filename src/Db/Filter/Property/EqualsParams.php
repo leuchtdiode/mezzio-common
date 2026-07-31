@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Common\Db\Filter\Property;
 
+use Common\Db\NameGenerator;
 use Doctrine\ORM\Query\Expr\Func;
 use Doctrine\ORM\QueryBuilder;
 
@@ -18,7 +19,7 @@ class EqualsParams extends BaseParams
 
 	public function getComparison(QueryBuilder $queryBuilder, string $field): Func
 	{
-		$valuesParam = uniqid('vp');
+		$valuesParam = NameGenerator::next($queryBuilder, 'vp');
 
 		$expr = $queryBuilder->expr();
 

@@ -2,6 +2,7 @@
 namespace Common\Db\Filter;
 
 use Common\Db\Filter;
+use Common\Db\NameGenerator;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\Query\Expr\Andx;
 use Doctrine\ORM\Query\Expr\Orx;
@@ -58,7 +59,7 @@ abstract class Generic implements Filter
 
 		foreach ($this->getColumns() as $column => $mode)
 		{
-			$param = uniqid('p');
+			$param = NameGenerator::next($queryBuilder, 'p');
 
 			switch ($mode)
 			{

@@ -2,6 +2,7 @@
 namespace Common\Db\Filter;
 
 use Common\Db\Filter;
+use Common\Db\NameGenerator;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 
@@ -49,11 +50,13 @@ class Distance implements Filter
 			$destinationLongitude
 		);
 
+		$kilometersParam = NameGenerator::next($queryBuilder, 'km');
+
 		if ($type === self::TYPE_MIN)
 		{
 			$queryBuilder
 				->andWhere(
-					$expr->gte($distance, $this->params->getKilometers())
+					$expr->gte($distance, ':' . $kilometersParam)
 				);
 		}
 
@@ -61,9 +64,11 @@ class Distance implements Filter
 		{
 			$queryBuilder
 				->andWhere(
-					$expr->lte($distance, $this->params->getKilometers())
+					$expr->lte($distance, ':' . $kilometersParam)
 				);
 		}
+
+		$queryBuilder->setParameter($kilometersParam, $this->params->getKilometers());
 	}
 
 	private function handleColumnOrValue(QueryBuilder $queryBuilder, Filter\Distance\ColumnOrValue $columnOrValue)
@@ -72,7 +77,7 @@ class Distance implements Filter
 
 		if (!$sourceLatitude)
 		{
-			$sourceLatitude = ':' . ($sourceLatitudeParam = uniqid('lat'));
+			$sourceLatitude = ':' . ($sourceLatitudeParam = NameGenerator::next($queryBuilder, 'lat'));
 
 			$queryBuilder->setParameter(
 				$sourceLatitudeParam,

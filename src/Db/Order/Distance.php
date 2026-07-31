@@ -1,6 +1,7 @@
 <?php
 namespace Common\Db\Order;
 
+use Common\Db\NameGenerator;
 use Common\Db\Order;
 use Doctrine\ORM\QueryBuilder;
 
@@ -43,7 +44,7 @@ abstract class Distance implements Order
 	{
 		$alias = $this->getAlias();
 
-		$distanceColumn = uniqid('d');
+		$distanceColumn = NameGenerator::next($queryBuilder, 'd');
 
 		$missingDefaultDistance = $this->getMissingDefaultDistance();
 
@@ -56,11 +57,11 @@ abstract class Distance implements Order
 			->addSelect(
 				sprintf(
 					'COALESCE(DISTANCE(:%s, :%s, %s.latitude, %s.longitude), :%s) AS HIDDEN %s',
-					$latitudeParam = uniqid('lat'),
-					$longitudeParam = uniqid('lon'),
+					$latitudeParam = NameGenerator::next($queryBuilder, 'lat'),
+					$longitudeParam = NameGenerator::next($queryBuilder, 'lon'),
 					$alias,
 					$alias,
-					$missingDefaultDistanceColumn = uniqid('md'),
+					$missingDefaultDistanceColumn = NameGenerator::next($queryBuilder, 'md'),
 					$distanceColumn
 				)
 			)

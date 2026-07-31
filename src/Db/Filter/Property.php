@@ -6,6 +6,7 @@ namespace Common\Db\Filter;
 use Common\Db\Filter;
 use Common\Db\Filter\Property\BaseParams;
 use Common\Db\Filter\Property\HandleParams;
+use Common\Db\NameGenerator;
 use Doctrine\ORM\Query\Expr\Andx;
 use Doctrine\ORM\Query\Expr\Orx;
 use Doctrine\ORM\QueryBuilder;
@@ -43,7 +44,7 @@ class Property implements Filter
 
 		$expr = $queryBuilder->expr();
 
-		$subAlias = uniqid('s');
+		$subAlias = NameGenerator::next($queryBuilder, 's');
 
 		$rootEntities = $queryBuilder->getRootEntities();
 		$rootEntity   = reset($rootEntities);
@@ -67,7 +68,7 @@ class Property implements Filter
 
 			if (!$isLast)
 			{
-				$subQb->leftJoin($subAlias . '.' . $property->getName(), $subAlias = uniqid('s'));
+				$subQb->leftJoin($subAlias . '.' . $property->getName(), $subAlias = NameGenerator::next($queryBuilder, 's'));
 			}
 			else
 			{
@@ -136,7 +137,7 @@ class Property implements Filter
 
 			foreach ($params->getValues() as $value)
 			{
-				$valueParam = uniqid('vp');
+				$valueParam = NameGenerator::next($queryBuilder, 'vp');
 
 				$itemOr->add(
 					sprintf(

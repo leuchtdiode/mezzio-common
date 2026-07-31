@@ -2,6 +2,7 @@
 namespace Common\Db\Filter;
 
 use Common\Db\Filter;
+use Common\Db\NameGenerator;
 use Common\Util\ClassUtil;
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
@@ -112,82 +113,97 @@ abstract class Date implements Filter
 			? 'Y-m-d H:i:s'
 			: 'Y-m-d';
 
+		// values are bound as parameters, inlining them would create a new DQL string
+		// for every value and therefore a new query cache entry
+		$parameterName = NameGenerator::next($queryBuilder, 'p');
+
+		$placeholder = ':' . $parameterName;
+
 		switch ($this->mode)
 		{
 			case self::IS:
 
-				$queryBuilder->andWhere(
-					$exp->eq(
-						$this->getColumn(),
-						$exp->literal($this->value->format($format))
-					)
+				$value = $this->value->format($format);
+
+				$condition = $exp->eq(
+					$this->getColumn(),
+					$placeholder
 				);
 
 				break;
 
 			case self::IN_DAYS:
-				$queryBuilder->andWhere(
-					$exp->eq(
-						"DATE_FORMAT({$this->getColumn()}, '%Y-%m-%d')",
-						$exp->literal($this->value->format('Y-m-d'))
-					)
+
+				$value = $this->value->format('Y-m-d');
+
+				$condition = $exp->eq(
+					"DATE_FORMAT({$this->getColumn()}, '%Y-%m-%d')",
+					$placeholder
 				);
 
 				break;
 
 			case self::MIN:
-				$queryBuilder->andWhere(
-					$exp->gte(
-						$this->getColumn(),
-						$exp->literal($this->value->format($format))
-					)
+
+				$value = $this->value->format($format);
+
+				$condition = $exp->gte(
+					$this->getColumn(),
+					$placeholder
 				);
 
 				break;
 
 			case self::MAX:
-				$queryBuilder->andWhere(
-					$exp->lte(
-						$this->getColumn(),
-						$exp->literal($this->value->format($format))
-					)
+
+				$value = $this->value->format($format);
+
+				$condition = $exp->lte(
+					$this->getColumn(),
+					$placeholder
 				);
 
 				break;
 
 			case self::BEFORE:
-				$queryBuilder->andWhere(
-					$exp->lt(
-						$this->getColumn(),
-						$exp->literal($this->value->format($format))
-					)
+
+				$value = $this->value->format($format);
+
+				$condition = $exp->lt(
+					$this->getColumn(),
+					$placeholder
 				);
 
 				break;
 
 			case self::AFTER:
-				$queryBuilder->andWhere(
-					$exp->gt(
-						$this->getColumn(),
-						$exp->literal($this->value->format($format))
-					)
+
+				$value = $this->value->format($format);
+
+				$condition = $exp->gt(
+					$this->getColumn(),
+					$placeholder
 				);
 
 				break;
 
 			case self::MODULO:
-				$queryBuilder->andWhere(
-					$exp->eq(
-						"DATE_FORMAT({$this->getColumn()}, '%m-%d')",
-						$exp->literal($this->value->format('m-d'))
-					)
+
+				$value = $this->value->format('m-d');
+
+				$condition = $exp->eq(
+					"DATE_FORMAT({$this->getColumn()}, '%m-%d')",
+					$placeholder
 				);
 
 				break;
 
 			default:
-				throw new RuntimeException("invalid mode in string filter");
+				throw new RuntimeException('invalid mode in string filter');
 		}
 
+		$queryBuilder
+			->andWhere($condition)
+			->setParameter($parameterName, $value);
 	}
 }
