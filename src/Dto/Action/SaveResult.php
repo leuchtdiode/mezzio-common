@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace Common\Dto\Action;
 
-use Common\ResultTrait;
 use Common\Dto\BaseDto;
+use Common\Result;
+use Common\ResultTrait;
 
-class SaveResult
+class SaveResult implements Result
 {
 	use ResultTrait;
 
