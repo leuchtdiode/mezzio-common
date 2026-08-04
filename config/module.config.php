@@ -4,6 +4,8 @@ namespace Common;
 use Common\Console\GlobalTranslatorInitializer;
 use Common\Console\RoutesInitializer;
 use Common\Container\RouterFactory;
+use Common\Db\Cache\PhpFilesMetadata;
+use Common\Db\Cache\PhpFilesQuery;
 use Common\Db\Functions\Distance;
 use Common\Router\HttpRouteCreator;
 use Common\View\Helper\AbsoluteUrl;
@@ -76,11 +78,17 @@ return [
 			],
 		],
 		'cache'         => [
-			'array'      => [
+			'array'              => [
 				'class' => ArrayAdapter::class,
 			],
-			'filesystem' => [
+			'filesystem'         => [
 				'class' => FilesystemAdapter::class,
+			],
+			'php_files_metadata' => [
+				'class' => PhpFilesMetadata::class,
+			],
+			'php_files_query'    => [
+				'class' => PhpFilesQuery::class,
 			],
 		],
 	],
