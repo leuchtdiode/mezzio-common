@@ -2,9 +2,9 @@
 namespace Common\View\Helper;
 
 use Common\Router\BaseUrlProvider;
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class AbsoluteUrlFactory implements FactoryInterface
