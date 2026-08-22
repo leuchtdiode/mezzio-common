@@ -44,6 +44,12 @@ abstract class BaseSaver
 
 		$isAddition = empty($params->getDtoId());
 
+		$saveConfig = (new ReflectionClass($this))->getAttributes(SaveConfig::class)[0] ?? null;
+
+		$initialDto = !$isAddition && ($saveConfig?->getArguments()['provideInitialDto'] ?? false)
+			? $this->getInitialDto($params->getDtoId())
+			: null;
+
 		$firstHandleItemResult = $this->handleItem(
 			HandleItemParams::create()
 				->setTransaction($saveTransaction)
@@ -74,7 +80,6 @@ abstract class BaseSaver
 				->setEntity($entity)
 		);
 
-		$saveConfig    = (new ReflectionClass($this))->getAttributes(SaveConfig::class)[0] ?? null;
 		$postSaveClass = $saveConfig?->getArguments()['postSave'] ?? null;
 
 		if ($postSaveClass)
@@ -89,6 +94,7 @@ abstract class BaseSaver
 					Save\PostSaveParams::create()
 						->setDto($dto)
 						->setAddition($isAddition)
+						->setInitialDto($initialDto)
 				)
 				->getDto();
 		}
@@ -97,6 +103,35 @@ abstract class BaseSaver
 		$result->setDto($dto);
 
 		return $result;
+	}
+
+	/**
+	 * Maps the entity as it currently is in the database, before handleItem() mutates it. The doctrine
+	 * identity map hands back the very same object handleItem() will work on, so this does not cause an
+	 * additional query.
+	 *
+	 * @throws Throwable
+	 */
+	private function getInitialDto(string $dtoId): ?Dto
+	{
+		/**
+		 * @var EntityRepository $repository
+		 */
+		$repository = $this->container->get(
+			$this->keyConfig->getDbNamespace($this->getKey()) . '\Repository'
+		);
+
+		$entity = $repository->find($dtoId);
+
+		if (!$entity)
+		{
+			return null;
+		}
+
+		return $this->defaultMapper->map(
+			DefaultMapParams::create()
+				->setEntity($entity)
+		);
 	}
 
 	/**

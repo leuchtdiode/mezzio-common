@@ -9,6 +9,7 @@ class PostSaveParams
 {
 	private Dto  $dto;
 	private bool $addition;
+	private ?Dto $initialDto = null;
 
 	public static function create(): static
 	{
@@ -34,6 +35,21 @@ class PostSaveParams
 	public function setAddition(bool $addition): PostSaveParams
 	{
 		$this->addition = $addition;
+		return $this;
+	}
+
+	/**
+	 * State of the dto before the save happened. Only available if the saver is annotated with
+	 * #[SaveConfig(provideInitialDto: true)] and the save was an update, null otherwise.
+	 */
+	public function getInitialDto(): ?Dto
+	{
+		return $this->initialDto;
+	}
+
+	public function setInitialDto(?Dto $initialDto): PostSaveParams
+	{
+		$this->initialDto = $initialDto;
 		return $this;
 	}
 }

@@ -11,6 +11,7 @@ class SaveConfig
 	public function __construct(
 		private readonly ?string $postSave = null,
 		private readonly ?string $preSaveDataManipulator = null,
+		private readonly ?bool $provideInitialDto = null,
 	)
 	{
 	}
