@@ -116,14 +116,14 @@ return [
 			],
 		],
 		'aliases'            => [
-			'Config' => 'config',
+			'Config'                      => 'config',
+			EntityManager::class          => 'doctrine.entity_manager.orm_default',
+			EntityManagerInterface::class => 'doctrine.entity_manager.orm_default',
 		],
 		'factories'          => [
 			RouterInterface::class                       => RouterFactory::class,
 			// doctrine cli
 			'doctrine.entity_manager.orm_default'        => EntityManagerFactory::class,
-			EntityManager::class                         => EntityManagerFactory::class,
-			EntityManagerInterface::class                => EntityManagerFactory::class,
 			// migrations
 			MigrationsCommand\CurrentCommand::class      => CommandFactory::class,
 			MigrationsCommand\DiffCommand::class         => CommandFactory::class,
