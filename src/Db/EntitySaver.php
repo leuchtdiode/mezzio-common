@@ -50,7 +50,9 @@ class EntitySaver
 			{
 				error_log(sprintf(
 					'Entity saver retryable exception: %s - %s',
-					get_class($entity),
+					$entity
+						? get_class($entity)
+						: 'class n.a.',
 					$e->getMessage(),
 				));
 
@@ -70,7 +72,9 @@ class EntitySaver
 			{
 				error_log(sprintf(
 					'Entity saver exception: %s - %s',
-					get_class($entity),
+					$entity
+						? get_class($entity)
+						: 'class n.a.',
 					$e->getMessage(),
 				));
 
