@@ -56,7 +56,7 @@ class EntitySaver
 					$e->getMessage(),
 				));
 
-				$this->entityManager->rollback();
+				$this->rollbackQuietly();
 
 				$attempt++;
 
@@ -78,9 +78,35 @@ class EntitySaver
 					$e->getMessage(),
 				));
 
-				$this->entityManager->rollback();
+				$this->rollbackQuietly();
 				throw $e;
 			}
+		}
+	}
+
+	/**
+	 * Rolling back can fail on its own, e.g. because doctrine already rolled the transaction back
+	 * while handling the failed flush, or because the connection is gone. Such a failure must never
+	 * replace the exception we are about to rethrow.
+	 */
+	private function rollbackQuietly(): void
+	{
+		try
+		{
+			if (!$this->entityManager->getConnection()->isTransactionActive())
+			{
+				return;
+			}
+
+			$this->entityManager->rollback();
+		}
+		catch (Throwable $rollbackException)
+		{
+			error_log(sprintf(
+				'Entity saver rollback failed: %s - %s',
+				get_class($rollbackException),
+				$rollbackException->getMessage(),
+			));
 		}
 	}
 }
