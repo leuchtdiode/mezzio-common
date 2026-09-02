@@ -30,6 +30,12 @@ class EntitySaver
 	}
 
 	/**
+	 * No transaction is opened here on purpose. UnitOfWork::commit() already wraps the flush in one,
+	 * so an additional outer transaction would only turn doctrine's into a nested one. A deadlock
+	 * drops the savepoint that doctrine then wants to roll back to, which makes its own rollback
+	 * fail with "SAVEPOINT DOCTRINE_2 does not exist" - and that error replaces the deadlock we are
+	 * trying to detect down here.
+	 *
 	 * @throws Throwable
 	 */
 	public function flush(?Entity $entity = null): void
@@ -40,16 +46,19 @@ class EntitySaver
 		{
 			try
 			{
-				$this->entityManager->beginTransaction();
 				$this->entityManager->flush();
-				$this->entityManager->commit();
 
 				break;
 			}
-			catch (RetryableException $e)
+			catch (Throwable $e)
 			{
+				$retryable = $e instanceof RetryableException;
+
 				error_log(sprintf(
-					'Entity saver retryable exception: %s - %s',
+					'Entity saver %s: %s - %s',
+					$retryable
+						? 'retryable exception'
+						: 'exception',
 					$entity
 						? get_class($entity)
 						: 'class n.a.',
@@ -58,28 +67,23 @@ class EntitySaver
 
 				$this->rollbackQuietly();
 
+				if (!$retryable)
+				{
+					throw $e;
+				}
+
 				$attempt++;
 
-				if ($attempt > self::RETRIES)
+				// doctrine closes the entity manager while it handles a failed flush, so every
+				// further attempt could only raise EntityManagerClosed and would hide the deadlock
+				// from the caller. Retrying needs a rebuilt entity manager, which we do not have.
+				if ($attempt > self::RETRIES || !$this->entityManager->isOpen())
 				{
 					throw $e;
 				}
 
 				$sleep = pow(2, $attempt) * self::SLEEP_MS; // exponential backoff
 				usleep($sleep);
-			}
-			catch (Throwable $e)
-			{
-				error_log(sprintf(
-					'Entity saver exception: %s - %s',
-					$entity
-						? get_class($entity)
-						: 'class n.a.',
-					$e->getMessage(),
-				));
-
-				$this->rollbackQuietly();
-				throw $e;
 			}
 		}
 	}
@@ -107,6 +111,11 @@ class EntitySaver
 				get_class($rollbackException),
 				$rollbackException->getMessage(),
 			));
+
+			// dbal lowers the transaction nesting level only after a successful rollback, so the
+			// connection would keep pretending to be inside a transaction the server already
+			// dropped. Closing it resets the level and reconnects on the next statement.
+			$this->entityManager->getConnection()->close();
 		}
 	}
 }

@@ -14,9 +14,9 @@ use RuntimeException;
 
 /**
  * Doctrine already closes the entity manager and rolls the transaction back while it handles a
- * failed flush, and dbal drops the nesting level to zero when a commit fails. The rollback the
- * saver does afterwards therefore regularly fails on its own with NoActiveTransaction. It must
- * never replace the exception that actually caused the failure.
+ * failed flush, and dbal keeps the nesting level up when rolling back to a savepoint fails. The
+ * rollback the saver does afterwards therefore regularly fails on its own. It must never replace
+ * the exception that actually caused the failure.
  */
 class EntitySaverTest extends Base
 {
@@ -33,12 +33,41 @@ class EntitySaverTest extends Base
 		$this->entityManager = $this
 			->getMockBuilder(EntityManager::class)
 			->disableOriginalConstructor()
-			->onlyMethods([ 'beginTransaction', 'flush', 'commit', 'rollback', 'getConnection' ])
+			->onlyMethods([
+				'beginTransaction',
+				'commit',
+				'flush',
+				'rollback',
+				'getConnection',
+				'isOpen',
+			])
 			->getMock();
 
 		$this->entityManager
 			->method('getConnection')
 			->willReturn($this->connection);
+	}
+
+	/**
+	 * UnitOfWork::commit() opens its own transaction. A second one around it makes doctrine work
+	 * with a savepoint, and a deadlock drops that savepoint, which turns the deadlock into an
+	 * unrelated "SAVEPOINT DOCTRINE_2 does not exist" error.
+	 */
+	public function test_the_saver_does_not_open_its_own_transaction(): void
+	{
+		$this->entityManager
+			->expects($this->never())
+			->method('beginTransaction');
+
+		$this->entityManager
+			->expects($this->never())
+			->method('commit');
+
+		$this->entityManager
+			->expects($this->once())
+			->method('flush');
+
+		$this->getEntitySaver()->flush();
 	}
 
 	public function test_a_failing_rollback_does_not_replace_the_flush_exception(): void
@@ -62,31 +91,6 @@ class EntitySaverTest extends Base
 		$this->getEntitySaver()->flush();
 	}
 
-	/**
-	 * Dbal raises the nesting level before it asks the driver, so a driver level failure inside
-	 * beginTransaction() leaves the connection looking like it still has a transaction.
-	 */
-	public function test_a_failing_rollback_does_not_replace_the_begin_transaction_exception(): void
-	{
-		$this->connection
-			->method('isTransactionActive')
-			->willReturn(true);
-
-		$this->entityManager
-			->method('beginTransaction')
-			->willThrowException(new RuntimeException('could not begin'));
-
-		$this->entityManager
-			->expects($this->once())
-			->method('rollback')
-			->willThrowException(NoActiveTransaction::new());
-
-		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('could not begin');
-
-		$this->getEntitySaver()->flush();
-	}
-
 	public function test_no_rollback_is_attempted_without_an_active_transaction(): void
 	{
 		$this->connection
@@ -94,30 +98,71 @@ class EntitySaverTest extends Base
 			->willReturn(false);
 
 		$this->entityManager
-			->method('commit')
-			->willThrowException(new RuntimeException('commit failed'));
+			->method('flush')
+			->willThrowException(new RuntimeException('the real cause'));
 
 		$this->entityManager
 			->expects($this->never())
 			->method('rollback');
 
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('commit failed');
+		$this->expectExceptionMessage('the real cause');
 
 		$this->getEntitySaver()->flush();
 	}
 
-	public function test_a_failing_rollback_does_not_break_the_retry_loop(): void
+	/**
+	 * Dbal lowers the nesting level only after a successful rollback, so a connection whose
+	 * rollback failed would keep pretending to be inside a transaction the server already dropped.
+	 */
+	public function test_a_failing_rollback_closes_the_connection(): void
+	{
+		$closed = false;
+
+		$this->connection
+			->method('isTransactionActive')
+			->willReturn(true);
+
+		$this->connection
+			->method('close')
+			->willReturnCallback(static function () use (&$closed): void
+			{
+				$closed = true;
+			});
+
+		$this->entityManager
+			->method('flush')
+			->willThrowException(new RuntimeException('the real cause'));
+
+		$this->entityManager
+			->expects($this->once())
+			->method('rollback')
+			->willThrowException(NoActiveTransaction::new());
+
+		try
+		{
+			$this->getEntitySaver()->flush();
+		}
+		catch (RuntimeException)
+		{
+			// expected, this test is about what happened to the connection
+		}
+
+		$this->assertTrue($closed, 'the connection was left with a stale transaction nesting level');
+	}
+
+	public function test_a_retryable_exception_is_retried_while_the_entity_manager_is_open(): void
 	{
 		$this->connection
 			->method('isTransactionActive')
 			->willReturn(true);
 
-		$deadlock = new class('deadlock detected') extends RuntimeException implements RetryableException
-		{
-		};
+		$this->entityManager
+			->method('isOpen')
+			->willReturn(true);
 
 		$attempts = 0;
+		$deadlock = $this->getDeadlock();
 
 		$this->entityManager
 			->method('flush')
@@ -139,6 +184,39 @@ class EntitySaverTest extends Base
 		$this->getEntitySaver()->flush();
 
 		$this->assertSame(2, $attempts, 'the deadlock was not retried');
+	}
+
+	/**
+	 * Doctrine closes the entity manager while handling the failed flush, so a further attempt
+	 * could only raise EntityManagerClosed, which would hide the deadlock from the caller.
+	 */
+	public function test_a_closed_entity_manager_ends_the_retry_loop_with_the_original_exception(): void
+	{
+		$this->connection
+			->method('isTransactionActive')
+			->willReturn(true);
+
+		$this->entityManager
+			->method('isOpen')
+			->willReturn(false);
+
+		$deadlock = $this->getDeadlock();
+
+		$this->entityManager
+			->expects($this->once())
+			->method('flush')
+			->willThrowException($deadlock);
+
+		$this->expectExceptionObject($deadlock);
+
+		$this->getEntitySaver()->flush();
+	}
+
+	private function getDeadlock(): RetryableException
+	{
+		return new class('deadlock detected') extends RuntimeException implements RetryableException
+		{
+		};
 	}
 
 	private function getEntitySaver(): EntitySaver
